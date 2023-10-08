@@ -30,33 +30,36 @@ namespace IdentityServer.Client1
             services.AddAuthentication(opt =>
             {
                 opt.DefaultScheme = "Cookies";
-                opt.DefaultChallengeScheme = "oidc";
+                //opt.DefaultChallengeScheme = "oidc";
             }).AddCookie("Cookies", opts =>
             {
+                opts.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Login/Index");
                 opts.AccessDeniedPath = "/Home/AccessDenied";
-            }).AddOpenIdConnect("oidc", opt =>
-            {
-                opt.SignInScheme = "Cookies";
-                opt.Authority = "https://localhost:5001";
-                opt.ClientId = "Client1-Mvc";
-                opt.ClientSecret = "secret";
-                opt.ResponseType = "code id_token";
-                opt.GetClaimsFromUserInfoEndpoint = true;
-                opt.SaveTokens = true;
-                opt.Scope.Add("api1.read");
-                opt.Scope.Add("offline_access");
-                opt.Scope.Add("CountryAndCity");
-                opt.ClaimActions.MapUniqueJsonKey("country", "country");
-                opt.ClaimActions.MapUniqueJsonKey("city", "city");
-                opt.Scope.Add("Roles");
-                opt.ClaimActions.MapUniqueJsonKey("role", "role");
+            });//.AddOpenIdConnect("oidc", opt =>
+            //{
+            //    opt.SignInScheme = "Cookies";
+            //    opt.Authority = "https://localhost:5001";
+            //    opt.ClientId = "Client1-Mvc";
+            //    opt.ClientSecret = "secret";
+            //    opt.ResponseType = "code id_token";
+            //    opt.GetClaimsFromUserInfoEndpoint = true;
+            //    opt.SaveTokens = true;
+            //    opt.Scope.Add("api1.read");
+            //    opt.Scope.Add("offline_access");
+            //    opt.Scope.Add("CountryAndCity");
+            //    opt.Scope.Add("email");
+            //    opt.ClaimActions.MapUniqueJsonKey("country", "country");
+            //    opt.ClaimActions.MapUniqueJsonKey("city", "city");
+            //    opt.Scope.Add("Roles");
+            //    opt.ClaimActions.MapUniqueJsonKey("role", "role");
 
-                opt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters() //Role üzerinden yetkilendirme yapacaðýný bildiriyoruz.
-                {
-                    RoleClaimType = "role",
+            //    opt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters() //Role üzerinden yetkilendirme yapacaðýný bildiriyoruz.
+            //    {
+            //        RoleClaimType = "role",
+            //        NameClaimType = "name",
 
-                };
-            });
+            //    };
+            //});
             services.AddControllersWithViews();
         }
 

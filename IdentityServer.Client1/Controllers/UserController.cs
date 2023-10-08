@@ -21,11 +21,11 @@ namespace IdentityServer.Client1.Controllers
             return View();
         }
 
-        public async Task LogOut()
+        public async Task<IActionResult> LogOut()
         {
             await HttpContext.SignOutAsync("Cookies"); //içine cookiew yazdık ki configde bunu oluşturmuştuk . Örneğin 2 adet login var ise bayi ve kullanıcı olarak hangisinden çıkış yapması gerektiğini belirttik.
-            await HttpContext.SignOutAsync("oidc"); //identity serverdan çıkığ yapması için kullandık
-           
+            //await HttpContext.SignOutAsync("oidc"); //identity serverdan çıkığ yapması için kullandık
+           return RedirectToAction("Index","Home");
         }
 
         public async Task<IActionResult> GetRefreshToken()

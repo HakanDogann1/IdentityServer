@@ -1,6 +1,10 @@
+using IdentityServer.AuthServer.Models;
+using IdentityServer.AuthServer.Repository;
+using IdentityServer.AuthServer.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,9 +27,16 @@ namespace IdentityServer.AuthServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<CustomDbContext>(opt =>
+            {
+                opt.UseSqlServer(Configuration.GetConnectionString("LocalDb"));
+            });
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddIdentityServer().AddInMemoryApiResources(Config.GetApiResource()).AddInMemoryApiScopes(Config.GetApiScopes())
             .AddInMemoryClients(Config.GetClient()).AddDeveloperSigningCredential().AddInMemoryIdentityResources(Config.GetIdentityResources())
-            .AddTestUsers(Config.GetUsers().ToList());
+            //.AddTestUsers(Config.GetUsers().ToList());
+            .AddProfileService<CustomProfileService>()
+            .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>();
             services.AddControllersWithViews();
         }
 

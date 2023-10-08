@@ -78,7 +78,7 @@ namespace IdentityServer.AuthServer
                      AllowedGrantTypes=GrantTypes.Hybrid,
                      RedirectUris=new List<string>{ "https://localhost:5006/signin-oidc" }, //Geri Dönüş hangi url e olacak
                      PostLogoutRedirectUris = new List<string>{ "https://localhost:5006/signout-callback-oidc" }, //Ezbere yazılmıyor. OpenId connect isimlendirilmeleridir.
-                     AllowedScopes={IdentityServerConstants.StandardScopes.OpenId,IdentityServerConstants.StandardScopes.Profile,"api1.read",IdentityServerConstants.StandardScopes.OfflineAccess,"CountryAndCity","Roles"},
+                     AllowedScopes={IdentityServerConstants.StandardScopes.Email, IdentityServerConstants.StandardScopes.OpenId,IdentityServerConstants.StandardScopes.Profile,"api1.read",IdentityServerConstants.StandardScopes.OfflineAccess,"CountryAndCity","Roles"},
                      AccessTokenLifetime=2*60*60, //Access tokena ömür verdik
                      AllowOfflineAccess=true, // Refresh tokeni aktif ettik
                      RefreshTokenUsage=TokenUsage.ReUse, //Bu refresh token bir kez mi kullanılsın birden fazla mı kullanılsın
@@ -88,7 +88,29 @@ namespace IdentityServer.AuthServer
                      AbsoluteRefreshTokenLifetime = (int)(DateTime.Now.AddDays(60)-DateTime.Now).TotalSeconds, //Refresh tokenin ömrü 60 gündür.
                      RequireConsent=true,
 
+                 },
+                 new Client()
+                 {
+                     ClientId="Client1-ResourceOwner-Mvc",
+                     RequirePkce=false, //Server side uygulama olduğu için false set ettik
+                     ClientName="Client1 app web uygulaması",
+                     ClientSecrets = new[]
+                     {
+                         new Secret("secret".Sha256())
+                     },
+                     AllowedGrantTypes=GrantTypes.ResourceOwnerPassword,
+                     AllowedScopes={IdentityServerConstants.StandardScopes.Email, IdentityServerConstants.StandardScopes.OpenId,IdentityServerConstants.StandardScopes.Profile,"api1.read",IdentityServerConstants.StandardScopes.OfflineAccess,"CountryAndCity","Roles"},
+                     AccessTokenLifetime=2*60*60, //Access tokena ömür verdik
+                     AllowOfflineAccess=true, // Refresh tokeni aktif ettik
+                     RefreshTokenUsage=TokenUsage.ReUse, //Bu refresh token bir kez mi kullanılsın birden fazla mı kullanılsın
+                     RefreshTokenExpiration=TokenExpiration.Absolute, //kesin bir süre verdik
+                     //AbsoluteRefreshTokenLifetime kesin bir gün verilir. Örneğin 3 gün sonra refresh tokenin ömrü bitsin gibi
+                     //SlidingRefreshTokenLifetime Refresh tokena default olarak 15 gün içinde istek yaparsak refresh tokenin ömrünü 15 gün daha uzatıyor.
+                     AbsoluteRefreshTokenLifetime = (int)(DateTime.Now.AddDays(60)-DateTime.Now).TotalSeconds, //Refresh tokenin ömrü 60 gündür.
+                     
+
                  }
+
             };
         }
 
@@ -96,6 +118,7 @@ namespace IdentityServer.AuthServer
         {
             return new List<IdentityResource>()
             {
+                new IdentityResources.Email(),
                 new IdentityResources.OpenId(),  //İçinde token döndüğünde kullanıcının ıd si olmalıdır. Resource de olmazsa olmazdır.SubId
                 new IdentityResources.Profile(),
                 new IdentityResource()
