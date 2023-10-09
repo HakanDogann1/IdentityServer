@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace IdentityServer.AuthServer
@@ -31,10 +32,26 @@ namespace IdentityServer.AuthServer
             {
                 opt.UseSqlServer(Configuration.GetConnectionString("LocalDb"));
             });
+            var assemblyName = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddIdentityServer().AddInMemoryApiResources(Config.GetApiResource()).AddInMemoryApiScopes(Config.GetApiScopes())
-            .AddInMemoryClients(Config.GetClient()).AddDeveloperSigningCredential().AddInMemoryIdentityResources(Config.GetIdentityResources())
+            services.AddIdentityServer().AddConfigurationStore(opt =>
+            {
+                opt.ConfigureDbContext = c => c.UseSqlServer(Configuration.GetConnectionString("LocalDb"), sqlopt =>
+                {
+                    sqlopt.MigrationsAssembly(assemblyName);
+                });
+            })
+            .AddOperationalStore(opts =>
+            {
+                opts.ConfigureDbContext = c => c.UseSqlServer(Configuration.GetConnectionString("LocalDb"), sqlopt =>
+                {
+                    sqlopt.MigrationsAssembly(assemblyName);
+                });
+            })
+            //.AddInMemoryApiResources(Config.GetApiResource()).AddInMemoryApiScopes(Config.GetApiScopes())
+            //.AddInMemoryClients(Config.GetClient()).AddInMemoryIdentityResources(Config.GetIdentityResources())
             //.AddTestUsers(Config.GetUsers().ToList());
+            .AddDeveloperSigningCredential()
             .AddProfileService<CustomProfileService>()
             .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>();
             services.AddControllersWithViews();

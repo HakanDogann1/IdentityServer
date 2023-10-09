@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,13 @@ namespace IdentityServer.Client1.Controllers
     [Authorize]
     public class UserController : Controller
     {
-        
+        private readonly IConfiguration _config;
+
+        public UserController(IConfiguration config)
+        {
+            _config = config;
+        }
+
         public IActionResult Index()
         {
             
@@ -36,8 +43,8 @@ namespace IdentityServer.Client1.Controllers
             var refreshToken = await HttpContext.GetTokenAsync(OpenIdConnectParameterNames.RefreshToken);
 
             RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest();
-            refreshTokenRequest.ClientId = "Client1-Mvc";
-            refreshTokenRequest.ClientSecret = "secret";
+            refreshTokenRequest.ClientId =_config["ClientResourceOwner:ClientId"];
+            refreshTokenRequest.ClientSecret = _config["ClientResourceOwner:ClientSecret"];
             refreshTokenRequest.RefreshToken = refreshToken;
             refreshTokenRequest.Address = disco.TokenEndpoint;
             var token = await httpClient.RequestRefreshTokenAsync(refreshTokenRequest);
